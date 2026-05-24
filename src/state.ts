@@ -27,7 +27,7 @@ export const state = {
     poolSize: 100,
     particlesPerSecond: 100,
     // heapJunk: 100MB junk at a time
-    memoryMode: "push" as "push" | "ring",
+    memoryMode: "ring" as "push" | "ring",
     drawMode: "batched" as "none" | "batched" | "single" | "composited",
   },
   spawnAccumulator: 0,

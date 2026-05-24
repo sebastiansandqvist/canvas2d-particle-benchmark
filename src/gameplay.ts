@@ -1,5 +1,32 @@
 import type { Particle, State } from "./state";
 
+function ringBufferEmit(state: State) {
+  const particle = state.particles[state.nextParticleIndex]!;
+  initParticle(particle, state.bounds.centerX, state.bounds.centerY);
+  state.nextParticleIndex = (state.nextParticleIndex + 1) % state.particles.length;
+}
+
+function pushAndFilterEmit(state: State) {
+  state.particles.push(createParticle(state.bounds.centerX, state.bounds.centerY));
+}
+
+function createParticle(x: number, y: number) {
+  const angle = random(0, Math.PI * 2);
+  const speed = random(0, 100);
+  return {
+    x,
+    y,
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed,
+    age: 0,
+    life: 2,
+    fromSize: random(3, 6),
+    toSize: 0,
+    fromOpacity: 1,
+    toOpacity: 0,
+  };
+}
+
 export function update(state: State, dt: number) {
   const updateStartTime = performance.now();
   const currentSecond = Math.floor(updateStartTime / 1000);
@@ -15,6 +42,7 @@ export function update(state: State, dt: number) {
   state.elapsedSeconds += dt;
   state.spawnAccumulator += dt;
   const interval = 1 / state.settings.particlesPerSecond;
+  const emit = state.settings.memoryMode === "ring" ? ringBufferEmit : pushAndFilterEmit;
   while (state.spawnAccumulator >= interval) {
     emit(state);
     state.spawnAccumulator -= interval;
@@ -23,6 +51,10 @@ export function update(state: State, dt: number) {
   for (const particle of state.particles) {
     if (particle.age >= particle.life) continue;
     stepParticle(particle, dt);
+  }
+
+  if (state.settings.memoryMode === "push") {
+    state.particles = state.particles.filter((particle) => particle.age < particle.life);
   }
 
   const updateDeltaTime = performance.now() - updateStartTime;
@@ -116,12 +148,6 @@ function stepParticle(p: Particle, dt: number) {
   if (p.age >= p.life) return;
   p.x += p.vx * dt;
   p.y += p.vy * dt;
-}
-
-function emit(state: State) {
-  const particle = state.particles[state.nextParticleIndex]!;
-  initParticle(particle, state.bounds.centerX, state.bounds.centerY);
-  state.nextParticleIndex = (state.nextParticleIndex + 1) % state.particles.length;
 }
 
 function initParticle(particle: Particle, x: number, y: number) {

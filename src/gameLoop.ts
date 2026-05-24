@@ -3,7 +3,8 @@
 type GameLoopConfig<State> = {
   ctx: CanvasRenderingContext2D;
   state: State;
-  update: (state: State, dt: number) => void;
+  update?: (state: State, dt: number) => void;
+  fixedUpdate?: (state: State, dt: number) => void;
   render: (state: State, ctx: CanvasRenderingContext2D) => void;
   fixedDeltaTime?: number;
 };
@@ -12,6 +13,7 @@ export function gameLoop<State>({
   ctx,
   state,
   update,
+  fixedUpdate,
   render,
   fixedDeltaTime = 8 / 1000,
 }: GameLoopConfig<State>) {
@@ -24,18 +26,22 @@ export function gameLoop<State>({
     }
 
     const elapsed = now - lastFrameTime;
-    const dt = Math.min(elapsed / 1000, 0.1);
+    const dt = elapsed / 1000;
     // const stats = (state as any).stats as Stats;
     lastFrameTime = now;
 
-    {
-      accumulator += dt;
-      // stats.fps.accumulator += elapsed / 1000;
-      while (accumulator >= fixedDeltaTime) {
-        update(state, fixedDeltaTime);
-        accumulator -= fixedDeltaTime;
+    if (fixedUpdate) {
+      {
+        accumulator += dt;
+        // stats.fps.accumulator += elapsed / 1000;
+        while (accumulator >= fixedDeltaTime) {
+          fixedUpdate(state, fixedDeltaTime);
+          accumulator -= fixedDeltaTime;
+        }
       }
     }
+
+    update?.(state, dt);
 
     // todo: think about this a bit more, and probably fix.
     // if (stats.fps.accumulator >= 1) {

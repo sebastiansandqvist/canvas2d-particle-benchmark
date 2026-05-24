@@ -56,7 +56,7 @@ function applySpawnRate(spawnRate: number) {
   state.settings.particlesPerSecond = spawnRate;
   elements.spawnRateOutput.textContent = `${spawnRate} particles per second`;
 
-  if (state.settings.poolSize < spawnRate) {
+  if (state.settings.poolSize < spawnRate && state.settings.memoryMode === "ring") {
     elements.poolSizeInput.value = elements.spawnRateInput.value;
     applyPoolSize(spawnRate);
   }
@@ -84,6 +84,17 @@ elements.drawModeInput.oninput = () => {
   const value = elements.drawModeInput.value;
   state.settings.drawMode = value as any;
 };
+elements.memoryModeInput.oninput = () => {
+  const value = elements.memoryModeInput.value;
+  state.settings.memoryMode = value as any;
+  const newPoolSize = state.settings.memoryMode === "push" ? 0 : 100;
+  elements.poolSizeInput.value = `${newPoolSize}`;
+  elements.poolSizeInput.disabled = state.settings.memoryMode === "push";
+  applyPoolSize(newPoolSize);
+};
+
+elements.drawModeInput.value = state.settings.drawMode;
+elements.memoryModeInput.value = state.settings.memoryMode;
 
 syncPoolSize();
 syncSpawnRate();
