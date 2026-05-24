@@ -68,6 +68,7 @@ function drawParticlesComposited(state: State, ctx: CanvasRenderingContext2D) {
     ctx.fillRect(particle.x - half, particle.y - half, size, size);
   }
   ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
 }
 
 export function render(state: State, ctx: CanvasRenderingContext2D) {
