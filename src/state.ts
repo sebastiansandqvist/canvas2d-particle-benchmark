@@ -24,7 +24,7 @@ export const state = {
     vx: 0,
     vy: 0,
     age: 0,
-    life: 1,
+    life: 2,
     fromSize: 0,
     toSize: 0,
     fromOpacity: 0,

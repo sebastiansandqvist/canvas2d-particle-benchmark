@@ -32,10 +32,7 @@ function drawParticlesBatched(state: State, ctx: CanvasRenderingContext2D) {
 
 export function render(state: State, ctx: CanvasRenderingContext2D) {
   const { width, height, centerX, centerY } = state.bounds;
-
-  // clear out the background
-  ctx.fillStyle = "#0b0d1a";
-  ctx.fillRect(0, 0, width, height);
+  ctx.clearRect(0, 0, width, height);
 
   switch (state.settings.drawMode) {
     case "none": {
@@ -77,12 +74,15 @@ function emit(state: State) {
 }
 
 function initParticle(particle: Particle, x: number, y: number) {
+  const angle = random(0, Math.PI * 2);
+  const speed = random(0, 100);
+
   particle.x = x;
   particle.y = y;
-  particle.vx = random(-100, 100);
-  particle.vy = random(-100, 100);
+  particle.vx = Math.cos(angle) * speed;
+  particle.vy = Math.sin(angle) * speed;
   particle.age = 0;
-  particle.life = 1;
+  particle.life = 2;
   particle.fromOpacity = 1;
   particle.toOpacity = 0;
   particle.fromSize = random(3, 6);

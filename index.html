@@ -7,6 +7,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>particle benchmark</title>
   <style>
+    body {
+      background: #0b0d1a
+    }
+
     canvas {
       position: fixed;
       inset: 0;
@@ -32,6 +36,10 @@
       flex-direction: column;
     }
 
+    select {
+      width: 150px;
+    }
+
     .slider-data {
       display: flex;
       justify-content: space-between;
@@ -47,14 +55,30 @@
         <span>Spawn rate</span>
         <output id="spawn-rate-output">-</output>
       </div>
-      <input type="range" min="0" max="1000000" id="spawn-rate" />
+      <input type="range" min="0" max="1000" value="333" id="spawn-rate" />
     </label>
     <label>
       <div class="slider-data">
         <span>Pool size</span>
         <output id="pool-size-output">-</output>
       </div>
-      <input type="range" min="0" max="1000000" id="pool-size" />
+      <input type="range" min="0" max="1000" value="333" id="pool-size" />
+    </label>
+    <label>
+      Draw mode
+      <select>
+        <option value="none">None</option>
+        <option value="batched">Batched</option>
+        <option value="single">Single</option>
+        <option value="composited">Composited</option>
+      </select>
+    </label>
+    <label>
+      Memory management
+      <select>
+        <option value="push">Push + filter</option>
+        <option value="ring">Ring buffer</option>
+      </select>
     </label>
   </fieldset>
   <script type="module" src="/src/main.ts"></script>
