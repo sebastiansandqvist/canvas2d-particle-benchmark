@@ -8,7 +8,8 @@
   <title>particle benchmark</title>
   <style>
     body {
-      background: #0b0d1a
+      background: #0b0d1a;
+      font-family: monospace;
     }
 
     canvas {
@@ -20,15 +21,24 @@
 
     fieldset {
       box-sizing: border-box;
+      border: 2px solid #777;
       color: white;
       display: flex;
       flex-direction: column;
       gap: 10px;
+      padding: 20px;
       position: fixed;
       bottom: 10px;
       left: 10px;
       right: 13px;
       z-index: 1;
+    }
+
+    legend {
+      background: #777;
+      color: white;
+      font-weight: bold;
+      padding: 5px 20px;
     }
 
     label {

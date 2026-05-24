@@ -37,6 +37,7 @@ function createParticle() {
   };
 }
 
+// log scale range input values instead of linear
 function getScaledValue(input: HTMLInputElement) {
   const t = input.valueAsNumber / 1000;
   return Math.round(1_000_000 ** t);

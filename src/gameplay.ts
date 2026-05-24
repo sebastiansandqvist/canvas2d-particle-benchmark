@@ -1,6 +1,17 @@
 import type { Particle, State } from "./state";
 
 export function update(state: State, dt: number) {
+  const updateStartTime = performance.now();
+  const currentSecond = Math.floor(updateStartTime / 1000);
+
+  if (state.stats.currentSecond !== currentSecond) {
+    state.stats.currentSecond = currentSecond;
+    state.stats.update.prevMaxMs = state.stats.update.currentMaxMs;
+    state.stats.update.currentMaxMs = 0;
+    state.stats.draw.prevMaxMs = state.stats.draw.currentMaxMs;
+    state.stats.draw.currentMaxMs = 0;
+  }
+
   state.elapsedSeconds += dt;
   state.spawnAccumulator += dt;
   const interval = 1 / state.settings.particlesPerSecond;
@@ -12,6 +23,9 @@ export function update(state: State, dt: number) {
     if (particle.age >= particle.life) continue;
     stepParticle(particle, dt);
   }
+
+  const updateDeltaTime = performance.now() - updateStartTime;
+  state.stats.update.currentMaxMs = Math.max(state.stats.update.currentMaxMs, updateDeltaTime);
 }
 
 const COLOR = "orange";
@@ -31,7 +45,10 @@ function drawParticlesBatched(state: State, ctx: CanvasRenderingContext2D) {
 }
 
 export function render(state: State, ctx: CanvasRenderingContext2D) {
-  const { width, height, centerX, centerY } = state.bounds;
+  const drawStartTime = performance.now();
+  const currentSecond = Math.floor(drawStartTime);
+
+  const { width, height } = state.bounds;
   ctx.clearRect(0, 0, width, height);
 
   switch (state.settings.drawMode) {
@@ -52,12 +69,20 @@ export function render(state: State, ctx: CanvasRenderingContext2D) {
     }
   }
 
-  // write some text
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.font = "48px sans-serif";
+  const drawDeltaTime = performance.now() - drawStartTime;
+  state.stats.draw.currentMaxMs = Math.max(state.stats.draw.currentMaxMs, drawDeltaTime);
+
+  // write the stats
+  ctx.font = "14px monospace";
   ctx.fillStyle = "white";
-  ctx.fillText("hello", centerX, centerY);
+  let y = 40;
+  ctx.fillText("FPS ········· ", 20, y);
+  y += 20;
+  ctx.fillText(`Update ······ ${state.stats.update.prevMaxMs.toFixed(2)}ms`, 20, y);
+  y += 20;
+  ctx.fillText(`Draw ········ ${state.stats.draw.prevMaxMs.toFixed(2)}ms`, 20, y);
+  y += 20;
+  ctx.fillText("Heap size ··· ", 20, y);
 }
 
 function stepParticle(p: Particle, dt: number) {
