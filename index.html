@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>particle benchmark</title>
+  <style>
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    fieldset {
+      box-sizing: border-box;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      right: 13px;
+      z-index: 1;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slider-data {
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+
+<body>
+  <fieldset>
+    <legend>Settings</legend>
+    <label>
+      <div class="slider-data">
+        <span>Spawn rate</span>
+        <output id="spawn-rate-output">-</output>
+      </div>
+      <input type="range" min="0" max="1000000" id="spawn-rate" />
+    </label>
+    <label>
+      <div class="slider-data">
+        <span>Pool size</span>
+        <output id="pool-size-output">-</output>
+      </div>
+      <input type="range" min="0" max="1000000" id="pool-size" />
+    </label>
+  </fieldset>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>
