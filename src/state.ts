@@ -30,6 +30,7 @@ export const state = {
     memoryMode: "ring" as "push" | "ring",
     drawMode: "batched" as "none" | "batched" | "single" | "composited",
   },
+  junk: [{ value: Math.random() }],
   spawnAccumulator: 0,
   nextParticleIndex: 0,
   particles: Array.from({ length: 100 }, () => ({
