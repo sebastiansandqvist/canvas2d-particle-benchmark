@@ -19,6 +19,7 @@ export function update(state: State, dt: number) {
     emit(state);
     state.spawnAccumulator -= interval;
   }
+
   for (const particle of state.particles) {
     if (particle.age >= particle.life) continue;
     stepParticle(particle, dt);
@@ -31,7 +32,6 @@ export function update(state: State, dt: number) {
 const COLOR = "orange";
 
 function drawParticlesBatched(state: State, ctx: CanvasRenderingContext2D) {
-  // draw particles
   ctx.beginPath();
   for (const particle of state.particles) {
     if (particle.age >= particle.life) continue;
@@ -44,9 +44,34 @@ function drawParticlesBatched(state: State, ctx: CanvasRenderingContext2D) {
   ctx.fill();
 }
 
+function drawParticlesSingle(state: State, ctx: CanvasRenderingContext2D) {
+  ctx.fillStyle = COLOR;
+  for (const particle of state.particles) {
+    if (particle.age >= particle.life) continue;
+    const t = particle.age / particle.life;
+    const size = lerp(particle.fromSize, particle.toSize, t);
+    const half = size / 2;
+    ctx.fillRect(particle.x - half, particle.y - half, size, size);
+  }
+}
+
+function drawParticlesComposited(state: State, ctx: CanvasRenderingContext2D) {
+  ctx.fillStyle = COLOR;
+  for (const particle of state.particles) {
+    if (particle.age >= particle.life) continue;
+    const t = particle.age / particle.life;
+    const size = lerp(particle.fromSize, particle.toSize, t);
+    const opacity = lerp(particle.fromOpacity, particle.toOpacity, t);
+    const half = size / 2;
+    ctx.globalAlpha = opacity;
+    ctx.globalCompositeOperation = "lighter";
+    ctx.fillRect(particle.x - half, particle.y - half, size, size);
+  }
+  ctx.globalAlpha = 1;
+}
+
 export function render(state: State, ctx: CanvasRenderingContext2D) {
   const drawStartTime = performance.now();
-  const currentSecond = Math.floor(drawStartTime);
 
   const { width, height } = state.bounds;
   ctx.clearRect(0, 0, width, height);
@@ -60,11 +85,11 @@ export function render(state: State, ctx: CanvasRenderingContext2D) {
       break;
     }
     case "single": {
-      // todo:
+      drawParticlesSingle(state, ctx);
       break;
     }
     case "composited": {
-      // todo:
+      drawParticlesComposited(state, ctx);
       break;
     }
   }
@@ -76,13 +101,13 @@ export function render(state: State, ctx: CanvasRenderingContext2D) {
   ctx.font = "14px monospace";
   ctx.fillStyle = "white";
   let y = 40;
-  ctx.fillText("FPS ········· ", 20, y);
+  // ctx.fillText(`FPS ········· ${state.stats.fps.prevFramesPerSecond}`, width - 220, y);
+  // y += 20;
+  ctx.fillText(`Update ······ ${state.stats.update.prevMaxMs.toFixed(2)}ms`, width - 220, y);
   y += 20;
-  ctx.fillText(`Update ······ ${state.stats.update.prevMaxMs.toFixed(2)}ms`, 20, y);
+  ctx.fillText(`Draw ········ ${state.stats.draw.prevMaxMs.toFixed(2)}ms`, width - 220, y);
   y += 20;
-  ctx.fillText(`Draw ········ ${state.stats.draw.prevMaxMs.toFixed(2)}ms`, 20, y);
-  y += 20;
-  ctx.fillText("Heap size ··· ", 20, y);
+  ctx.fillText("Heap size ··· ", width - 220, y);
 }
 
 function stepParticle(p: Particle, dt: number) {

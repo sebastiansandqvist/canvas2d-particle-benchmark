@@ -20,6 +20,8 @@ const elements = {
   spawnRateInput: document.getElementById("spawn-rate") as HTMLInputElement,
   poolSizeOutput: document.getElementById("pool-size-output") as HTMLOutputElement,
   spawnRateOutput: document.getElementById("spawn-rate-output") as HTMLOutputElement,
+  drawModeInput: document.getElementById("draw-mode") as HTMLSelectElement,
+  memoryModeInput: document.getElementById("memory-mode") as HTMLSelectElement,
 };
 
 function createParticle() {
@@ -78,6 +80,10 @@ function syncSpawnRate() {
 
 elements.poolSizeInput.oninput = syncPoolSize;
 elements.spawnRateInput.oninput = syncSpawnRate;
+elements.drawModeInput.oninput = () => {
+  const value = elements.drawModeInput.value;
+  state.settings.drawMode = value as any;
+};
 
 syncPoolSize();
 syncSpawnRate();
