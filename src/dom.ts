@@ -10,8 +10,6 @@ export function initDom() {
     particleLifeOutput: document.getElementById("particle-life-output") as HTMLOutputElement,
     drawModeInput: document.getElementById("draw-mode") as HTMLSelectElement,
     memoryModeInput: document.getElementById("memory-mode") as HTMLSelectElement,
-    junkMemoryInput: document.getElementById("junk-memory") as HTMLInputElement,
-    junkMemoryOutput: document.getElementById("junk-memory-output") as HTMLOutputElement,
   };
 
   // log scale range input values instead of linear
