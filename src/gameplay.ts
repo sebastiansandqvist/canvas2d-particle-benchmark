@@ -1,4 +1,4 @@
-import type { Particle, State } from "./state";
+import { createParticle, type Particle, type State } from "./state";
 import { lerp, random } from "./utils";
 
 function ringBufferEmit(state: State) {
@@ -8,24 +8,9 @@ function ringBufferEmit(state: State) {
 }
 
 function pushAndFilterEmit(state: State) {
-  state.particles.push(createParticle(state.bounds.centerX, state.bounds.centerY));
-}
-
-function createParticle(x: number, y: number) {
-  const angle = random(0, Math.PI * 2);
-  const speed = random(0, 100);
-  return {
-    x,
-    y,
-    vx: Math.cos(angle) * speed,
-    vy: Math.sin(angle) * speed,
-    age: 0,
-    life: 2,
-    fromSize: random(3, 6),
-    toSize: 0,
-    fromOpacity: 1,
-    toOpacity: 0,
-  };
+  const particle = createParticle(state.bounds.centerX, state.bounds.centerY);
+  initParticle(particle, state.bounds.centerX, state.bounds.centerY);
+  state.particles.push(particle);
 }
 
 export function update(state: State, dt: number) {
