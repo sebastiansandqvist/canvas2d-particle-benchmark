@@ -1,4 +1,5 @@
 import type { Particle, State } from "./state";
+import { lerp, random } from "./utils";
 
 function ringBufferEmit(state: State) {
   const particle = state.particles[state.nextParticleIndex]!;
@@ -166,12 +167,4 @@ function initParticle(particle: Particle, x: number, y: number) {
   particle.toOpacity = 0;
   particle.fromSize = random(3, 6);
   particle.toSize = 0;
-}
-
-function random(min: number, max: number) {
-  return Math.random() * (max - min) + min;
-}
-
-function lerp(a: number, b: number, t: number) {
-  return a + (b - a) * t;
 }
