@@ -3,13 +3,17 @@ import { lerp, random } from "./utils";
 
 function ringBufferEmit(state: State) {
   const particle = state.particles[state.nextParticleIndex]!;
-  initParticle(particle, state.bounds.centerX, state.bounds.centerY);
+  initParticle(particle, state.bounds.centerX, state.bounds.centerY, state.settings.particleLife);
   state.nextParticleIndex = (state.nextParticleIndex + 1) % state.particles.length;
 }
 
 function pushAndFilterEmit(state: State) {
-  const particle = createParticle(state.bounds.centerX, state.bounds.centerY);
-  initParticle(particle, state.bounds.centerX, state.bounds.centerY);
+  const particle = createParticle(
+    state.bounds.centerX,
+    state.bounds.centerY,
+    state.settings.particleLife,
+  );
+  initParticle(particle, state.bounds.centerX, state.bounds.centerY, state.settings.particleLife);
   state.particles.push(particle);
 }
 
@@ -138,7 +142,7 @@ function stepParticle(p: Particle, dt: number) {
   p.y += p.vy * dt;
 }
 
-function initParticle(particle: Particle, x: number, y: number) {
+function initParticle(particle: Particle, x: number, y: number, life: number) {
   const angle = random(0, Math.PI * 2);
   const speed = random(0, 100);
 
@@ -147,7 +151,7 @@ function initParticle(particle: Particle, x: number, y: number) {
   particle.vx = Math.cos(angle) * speed;
   particle.vy = Math.sin(angle) * speed;
   particle.age = 0;
-  particle.life = 2;
+  particle.life = life;
   particle.fromOpacity = 1;
   particle.toOpacity = 0;
   particle.fromSize = random(3, 6);

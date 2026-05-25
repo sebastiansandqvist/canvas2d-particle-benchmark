@@ -4,8 +4,10 @@ export function initDom() {
   const elements = {
     poolSizeInput: document.getElementById("pool-size") as HTMLInputElement,
     spawnRateInput: document.getElementById("spawn-rate") as HTMLInputElement,
+    particleLifeInput: document.getElementById("particle-life") as HTMLInputElement,
     poolSizeOutput: document.getElementById("pool-size-output") as HTMLOutputElement,
     spawnRateOutput: document.getElementById("spawn-rate-output") as HTMLOutputElement,
+    particleLifeOutput: document.getElementById("particle-life-output") as HTMLOutputElement,
     drawModeInput: document.getElementById("draw-mode") as HTMLSelectElement,
     memoryModeInput: document.getElementById("memory-mode") as HTMLSelectElement,
     junkMemoryInput: document.getElementById("junk-memory") as HTMLInputElement,
@@ -21,7 +23,7 @@ export function initDom() {
   function applyPoolSize(poolSize: number) {
     state.settings.poolSize = poolSize;
     elements.poolSizeOutput.textContent = `${poolSize}`;
-    state.particles = Array.from({ length: poolSize }, () => createParticle());
+    state.particles = Array.from({ length: poolSize }, () => createParticle(0, 0, 0));
     state.nextParticleIndex = 0;
   }
 
@@ -29,7 +31,7 @@ export function initDom() {
     state.settings.particlesPerSecond = spawnRate;
     elements.spawnRateOutput.textContent = `${spawnRate} particles per second`;
 
-    const minimumPoolSize = spawnRate * 2;
+    const minimumPoolSize = Math.ceil(spawnRate * state.settings.particleLife);
 
     if (state.settings.poolSize < minimumPoolSize && state.settings.memoryMode === "ring") {
       const t = Math.log(minimumPoolSize) / Math.log(1_000_000);
@@ -49,8 +51,15 @@ export function initDom() {
     applySpawnRate(spawnRate);
   }
 
+  function syncParticleLife() {
+    state.settings.particleLife = elements.particleLifeInput.valueAsNumber;
+    elements.particleLifeOutput.textContent = `${state.settings.particleLife.toFixed(1)} seconds`;
+    applySpawnRate(state.settings.particlesPerSecond);
+  }
+
   elements.poolSizeInput.oninput = syncPoolSize;
   elements.spawnRateInput.oninput = syncSpawnRate;
+  elements.particleLifeInput.oninput = syncParticleLife;
   elements.drawModeInput.oninput = () => {
     const value = elements.drawModeInput.value;
     state.settings.drawMode = value as typeof state.settings.drawMode;
@@ -71,7 +80,9 @@ export function initDom() {
 
   elements.drawModeInput.value = state.settings.drawMode;
   elements.memoryModeInput.value = state.settings.memoryMode;
+  elements.particleLifeInput.value = `${state.settings.particleLife}`;
 
   syncPoolSize();
+  syncParticleLife();
   syncSpawnRate();
 }
