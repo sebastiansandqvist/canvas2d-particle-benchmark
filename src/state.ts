@@ -1,5 +1,20 @@
 import { createBounds } from "./canvas";
 
+export function createParticle(x: number, y: number, life: number) {
+  return {
+    x,
+    y,
+    vx: 0,
+    vy: 0,
+    age: 0,
+    life,
+    fromSize: 0,
+    toSize: 0,
+    fromOpacity: 0,
+    toOpacity: 0,
+  };
+}
+
 export const state = {
   bounds: createBounds(),
   elapsedSeconds: 0,
@@ -26,24 +41,13 @@ export const state = {
   settings: {
     poolSize: 100,
     particlesPerSecond: 100,
-    // heapJunk: 100MB junk at a time
+    particleLife: 2,
     memoryMode: "ring" as "push" | "ring",
     drawMode: "batched" as "none" | "batched" | "single" | "composited",
   },
   spawnAccumulator: 0,
   nextParticleIndex: 0,
-  particles: Array.from({ length: 100 }, () => ({
-    x: 0,
-    y: 0,
-    vx: 0,
-    vy: 0,
-    age: 0,
-    life: 0,
-    fromSize: 0,
-    toSize: 0,
-    fromOpacity: 0,
-    toOpacity: 0,
-  })),
+  particles: Array.from({ length: 100 }, () => createParticle(0, 0, 0)),
 };
 
 // todo: add free index buffer and a new slider for "particle lifetime random range" and new memory management "mode"
