@@ -134,13 +134,17 @@ export function render(state: State, ctx: CanvasRenderingContext2D) {
   ctx.font = "14px monospace";
   ctx.fillStyle = "white";
   let y = 40;
-  // ctx.fillText(`FPS ········· ${state.stats.fps.prevFramesPerSecond}`, width - 220, y);
+  // ctx.fillText(`FPS ··········· ${state.stats.fps.prevFramesPerSecond}`, width - 220, y);
   // y += 20;
-  ctx.fillText(`Update ······ ${state.stats.update.prevMaxMs.toFixed(2)}ms`, width - 220, y);
+  ctx.fillText(`Update ········ ${state.stats.update.prevMaxMs.toFixed(2)}ms`, width - 220, y);
   y += 20;
-  ctx.fillText(`Draw ········ ${state.stats.draw.prevMaxMs.toFixed(2)}ms`, width - 220, y);
-  y += 20;
-  ctx.fillText("Heap size ··· ", width - 220, y);
+  ctx.fillText(`Draw ·········· ${state.stats.draw.prevMaxMs.toFixed(2)}ms`, width - 220, y);
+  y += 30;
+  ctx.globalAlpha = 0.5;
+  ctx.fillText("(Open devtools for FPS)", width - 220, y);
+  ctx.globalAlpha = 1;
+  // y += 20;
+  // ctx.fillText("Heap size ····· ", width - 220, y);
 }
 
 function stepParticle(p: Particle, dt: number) {

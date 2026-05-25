@@ -64,12 +64,13 @@ function applySpawnRate(spawnRate: number) {
   }
 }
 
+// todo
 function syncPoolSize() {
   const requestedPoolSize = getScaledValue(elements.poolSizeInput);
-  const poolSize = Math.max(requestedPoolSize, state.settings.particlesPerSecond);
+  const poolSize = Math.max(requestedPoolSize, state.settings.particlesPerSecond * 2);
 
   if (poolSize !== requestedPoolSize) {
-    elements.poolSizeInput.value = elements.spawnRateInput.value;
+    elements.poolSizeInput.value = `${poolSize}`;
   }
 
   applyPoolSize(poolSize);
@@ -93,15 +94,6 @@ elements.memoryModeInput.oninput = () => {
   elements.poolSizeInput.value = `${newPoolSize}`;
   elements.poolSizeInput.disabled = state.settings.memoryMode === "push";
   applyPoolSize(newPoolSize);
-};
-elements.junkMemoryInput.oninput = () => {
-  const value = elements.junkMemoryInput.valueAsNumber;
-  state.junk.length = 0;
-  for (let i = 0; i < value * 100000; i++) {
-    state.junk.push({ value: Math.random() });
-  }
-  // state.settings.junkMemory = value;
-  // elements.junkMemoryOutput.textContent = `${value}MB`;
 };
 
 elements.drawModeInput.value = state.settings.drawMode;
