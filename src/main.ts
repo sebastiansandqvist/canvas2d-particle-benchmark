@@ -58,21 +58,19 @@ function applySpawnRate(spawnRate: number) {
   state.settings.particlesPerSecond = spawnRate;
   elements.spawnRateOutput.textContent = `${spawnRate} particles per second`;
 
-  if (state.settings.poolSize < spawnRate && state.settings.memoryMode === "ring") {
-    elements.poolSizeInput.value = elements.spawnRateInput.value;
-    applyPoolSize(spawnRate);
+  const minimumPoolSize = spawnRate * 2;
+
+  if (state.settings.poolSize < minimumPoolSize && state.settings.memoryMode === "ring") {
+    const t = Math.log(minimumPoolSize) / Math.log(1_000_000);
+    elements.poolSizeInput.value = `${Math.round(t * 1000)}`;
+    applyPoolSize(minimumPoolSize);
   }
 }
 
 // todo
 function syncPoolSize() {
   const requestedPoolSize = getScaledValue(elements.poolSizeInput);
-  const poolSize = Math.max(requestedPoolSize, state.settings.particlesPerSecond * 2);
-
-  if (poolSize !== requestedPoolSize) {
-    elements.poolSizeInput.value = `${poolSize}`;
-  }
-
+  const poolSize = state.settings.memoryMode === "push" ? 0 : requestedPoolSize;
   applyPoolSize(poolSize);
 }
 
@@ -90,10 +88,15 @@ elements.drawModeInput.oninput = () => {
 elements.memoryModeInput.oninput = () => {
   const value = elements.memoryModeInput.value;
   state.settings.memoryMode = value as any;
-  const newPoolSize = state.settings.memoryMode === "push" ? 0 : 100;
-  elements.poolSizeInput.value = `${newPoolSize}`;
   elements.poolSizeInput.disabled = state.settings.memoryMode === "push";
-  applyPoolSize(newPoolSize);
+
+  if (state.settings.memoryMode === "push") {
+    elements.poolSizeInput.value = "0";
+    applyPoolSize(0);
+    return;
+  }
+
+  syncSpawnRate();
 };
 
 elements.drawModeInput.value = state.settings.drawMode;
