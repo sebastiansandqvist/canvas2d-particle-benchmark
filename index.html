@@ -34,6 +34,10 @@
       z-index: 1;
     }
 
+    input {
+      accent-color: deepskyblue;
+    }
+
     legend {
       background: #777;
       color: white;
@@ -53,6 +57,11 @@
     .slider-data {
       display: flex;
       justify-content: space-between;
+    }
+
+    a {
+      color: deepskyblue;
+      width: fit-content;
     }
   </style>
 </head>
@@ -90,6 +99,7 @@
         <option value="ring">Ring buffer</option>
       </select>
     </label>
+    <a href="https://github.com/sebastiansandqvist/canvas2d-particle-benchmark">View source</a>
   </fieldset>
   <script type="module" src="/src/main.ts"></script>
 </body>
