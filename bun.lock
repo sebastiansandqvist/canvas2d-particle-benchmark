@@ -5,7 +5,7 @@
     "": {
       "name": "spud-game-template",
       "dependencies": {
-        "@spud.gg/api": "0.0.28",
+        "@spud.gg/api": "0.1.0",
       },
       "devDependencies": {
         "sharp": "0.34.5",
@@ -109,7 +109,7 @@
 
     "@rolldown/pluginutils": ["@rolldown/pluginutils@1.0.1", "", {}, "sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw=="],
 
-    "@spud.gg/api": ["@spud.gg/api@0.0.28", "", {}, "sha512-5062yi0qBL1kKpkv3Izq1DATeIanc0TQD3VBWAbgdpCT9o2/M0xsgpMgM6KxikuUzxd4RHDd6FrmaxdZ1Y3N5g=="],
+    "@spud.gg/api": ["@spud.gg/api@0.1.0", "", {}, "sha512-SLxaU89z06FcXRp+cO0kG5NI33MQ5iCI7iYJ53QKbW7X9slDyUzEKQMi0fdcD4LEzsKpiNkVJKsT2STg3CLllQ=="],
 
     "@tybys/wasm-util": ["@tybys/wasm-util@0.10.1", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg=="],
 

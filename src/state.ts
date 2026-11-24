@@ -42,11 +42,12 @@ export const state = {
     poolSize: 100,
     particlesPerSecond: 100,
     particleLife: 2,
-    memoryMode: "ring" as "push" | "ring",
+    memoryMode: "ring" as "push" | "ring" | "packed",
     drawMode: "batched" as "none" | "batched" | "single" | "composited",
   },
   spawnAccumulator: 0,
   nextParticleIndex: 0,
+  liveCount: 0, // In packed mode, particles before this index are alive.
   particles: Array.from({ length: 100 }, () => createParticle(0, 0, 0)),
 };
 

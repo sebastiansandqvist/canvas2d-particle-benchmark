@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@spud.gg/api": "0.0.28"
+    "@spud.gg/api": "0.1.0"
   },
   "devDependencies": {
     "sharp": "0.34.5",

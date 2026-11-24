@@ -18,11 +18,20 @@ export function initDom() {
     return Math.round(1_000_000 ** t);
   }
 
+  function resetParticles() {
+    const pooled = state.settings.memoryMode !== "push";
+    const capacity = pooled ? state.settings.poolSize : 0;
+    elements.poolSizeInput.disabled = !pooled;
+    elements.poolSizeOutput.textContent = pooled ? `${capacity}` : "Unused";
+    state.particles = Array.from({ length: capacity }, () => createParticle(0, 0, 0));
+    state.nextParticleIndex = 0;
+    state.liveCount = 0;
+    state.spawnAccumulator = 0;
+  }
+
   function applyPoolSize(poolSize: number) {
     state.settings.poolSize = poolSize;
-    elements.poolSizeOutput.textContent = `${poolSize}`;
-    state.particles = Array.from({ length: poolSize }, () => createParticle(0, 0, 0));
-    state.nextParticleIndex = 0;
+    if (state.settings.memoryMode !== "push") resetParticles();
   }
 
   function applySpawnRate(spawnRate: number) {
@@ -31,7 +40,7 @@ export function initDom() {
 
     const minimumPoolSize = Math.ceil(spawnRate * state.settings.particleLife);
 
-    if (state.settings.poolSize < minimumPoolSize && state.settings.memoryMode === "ring") {
+    if (state.settings.poolSize < minimumPoolSize) {
       const t = Math.log(minimumPoolSize) / Math.log(1_000_000);
       elements.poolSizeInput.value = `${Math.round(t * 1000)}`;
       applyPoolSize(minimumPoolSize);
@@ -39,9 +48,7 @@ export function initDom() {
   }
 
   function syncPoolSize() {
-    const requestedPoolSize = getScaledValue(elements.poolSizeInput);
-    const poolSize = state.settings.memoryMode === "push" ? 0 : requestedPoolSize;
-    applyPoolSize(poolSize);
+    applyPoolSize(getScaledValue(elements.poolSizeInput));
   }
 
   function syncSpawnRate() {
@@ -65,15 +72,7 @@ export function initDom() {
   elements.memoryModeInput.oninput = () => {
     const value = elements.memoryModeInput.value;
     state.settings.memoryMode = value as typeof state.settings.memoryMode;
-    elements.poolSizeInput.disabled = state.settings.memoryMode === "push";
-
-    if (state.settings.memoryMode === "push") {
-      elements.poolSizeInput.value = "0";
-      applyPoolSize(0);
-      return;
-    }
-
-    syncSpawnRate();
+    resetParticles();
   };
 
   elements.drawModeInput.value = state.settings.drawMode;

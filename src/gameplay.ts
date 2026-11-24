@@ -7,6 +7,13 @@ function ringBufferEmit(state: State) {
   state.nextParticleIndex = (state.nextParticleIndex + 1) % state.particles.length;
 }
 
+function packedPoolEmit(state: State) {
+  if (state.liveCount === state.particles.length) return;
+  const particle = state.particles[state.liveCount]!;
+  initParticle(particle, state.bounds.centerX, state.bounds.centerY, state.settings.particleLife);
+  state.liveCount++;
+}
+
 function pushAndFilterEmit(state: State) {
   const particle = createParticle(
     state.bounds.centerX,
@@ -15,6 +22,24 @@ function pushAndFilterEmit(state: State) {
   );
   initParticle(particle, state.bounds.centerX, state.bounds.centerY, state.settings.particleLife);
   state.particles.push(particle);
+}
+
+const emitByMode = { ring: ringBufferEmit, packed: packedPoolEmit, push: pushAndFilterEmit };
+
+function updatePackedPool(state: State, dt: number) {
+  const { particles } = state;
+  let i = 0;
+  while (i < state.liveCount) {
+    const particle = particles[i]!;
+    if (stepParticle(particle, dt)) {
+      i++;
+    } else {
+      state.liveCount--;
+      particles[i] = particles[state.liveCount]!;
+      particles[state.liveCount] = particle;
+      // the particle that was moved into slot i still needs its update
+    }
+  }
 }
 
 export function update(state: State, dt: number) {
@@ -32,19 +57,24 @@ export function update(state: State, dt: number) {
   state.elapsedSeconds += dt;
   state.spawnAccumulator += dt;
   const interval = 1 / state.settings.particlesPerSecond;
-  const emit = state.settings.memoryMode === "ring" ? ringBufferEmit : pushAndFilterEmit;
+  const mode = state.settings.memoryMode;
+  const emit = emitByMode[mode];
   while (state.spawnAccumulator >= interval) {
     emit(state);
     state.spawnAccumulator -= interval;
   }
 
-  for (const particle of state.particles) {
-    if (particle.age >= particle.life) continue;
-    stepParticle(particle, dt);
-  }
+  if (mode === "packed") {
+    updatePackedPool(state, dt);
+  } else {
+    for (const particle of state.particles) {
+      if (particle.age >= particle.life) continue;
+      stepParticle(particle, dt);
+    }
 
-  if (state.settings.memoryMode === "push") {
-    state.particles = state.particles.filter((particle) => particle.age < particle.life);
+    if (mode === "push") {
+      state.particles = state.particles.filter((particle) => particle.age < particle.life);
+    }
   }
 
   const updateDeltaTime = performance.now() - updateStartTime;
@@ -53,10 +83,16 @@ export function update(state: State, dt: number) {
 
 const COLOR = "orange";
 
-function drawParticlesBatched(state: State, ctx: CanvasRenderingContext2D) {
+function drawParticlesBatched(
+  ctx: CanvasRenderingContext2D,
+  particles: Particle[],
+  count: number,
+  checkLife: boolean,
+) {
   ctx.beginPath();
-  for (const particle of state.particles) {
-    if (particle.age >= particle.life) continue;
+  for (let i = 0; i < count; i++) {
+    const particle = particles[i]!;
+    if (checkLife && particle.age >= particle.life) continue;
     const t = particle.age / particle.life;
     const size = lerp(particle.fromSize, particle.toSize, t);
     const half = size / 2;
@@ -66,10 +102,16 @@ function drawParticlesBatched(state: State, ctx: CanvasRenderingContext2D) {
   ctx.fill();
 }
 
-function drawParticlesSingle(state: State, ctx: CanvasRenderingContext2D) {
+function drawParticlesSingle(
+  ctx: CanvasRenderingContext2D,
+  particles: Particle[],
+  count: number,
+  checkLife: boolean,
+) {
   ctx.fillStyle = COLOR;
-  for (const particle of state.particles) {
-    if (particle.age >= particle.life) continue;
+  for (let i = 0; i < count; i++) {
+    const particle = particles[i]!;
+    if (checkLife && particle.age >= particle.life) continue;
     const t = particle.age / particle.life;
     const size = lerp(particle.fromSize, particle.toSize, t);
     const half = size / 2;
@@ -77,10 +119,16 @@ function drawParticlesSingle(state: State, ctx: CanvasRenderingContext2D) {
   }
 }
 
-function drawParticlesComposited(state: State, ctx: CanvasRenderingContext2D) {
+function drawParticlesComposited(
+  ctx: CanvasRenderingContext2D,
+  particles: Particle[],
+  count: number,
+  checkLife: boolean,
+) {
   ctx.fillStyle = COLOR;
-  for (const particle of state.particles) {
-    if (particle.age >= particle.life) continue;
+  for (let i = 0; i < count; i++) {
+    const particle = particles[i]!;
+    if (checkLife && particle.age >= particle.life) continue;
     const t = particle.age / particle.life;
     const size = lerp(particle.fromSize, particle.toSize, t);
     const opacity = lerp(particle.fromOpacity, particle.toOpacity, t);
@@ -99,20 +147,24 @@ export function render(state: State, ctx: CanvasRenderingContext2D) {
   const { width, height } = state.bounds;
   ctx.clearRect(0, 0, width, height);
 
+  const { particles } = state;
+  const mode = state.settings.memoryMode;
+  const count = mode === "packed" ? state.liveCount : particles.length;
+  const checkLife = mode === "ring";
   switch (state.settings.drawMode) {
     case "none": {
       break;
     }
     case "batched": {
-      drawParticlesBatched(state, ctx);
+      drawParticlesBatched(ctx, particles, count, checkLife);
       break;
     }
     case "single": {
-      drawParticlesSingle(state, ctx);
+      drawParticlesSingle(ctx, particles, count, checkLife);
       break;
     }
     case "composited": {
-      drawParticlesComposited(state, ctx);
+      drawParticlesComposited(ctx, particles, count, checkLife);
       break;
     }
   }
@@ -137,9 +189,10 @@ export function render(state: State, ctx: CanvasRenderingContext2D) {
 
 function stepParticle(p: Particle, dt: number) {
   p.age += dt;
-  if (p.age >= p.life) return;
+  if (p.age >= p.life) return false;
   p.x += p.vx * dt;
   p.y += p.vy * dt;
+  return true;
 }
 
 function initParticle(particle: Particle, x: number, y: number, life: number) {
